@@ -1,6 +1,8 @@
 <?php
 
-require dirname(__FILE__).'/../lib/legendastv.php';
+namespace LegendasTv;
+
+require dirname(__FILE__) . '/../lib/LegendasTv.php';
 
 /**
  * Função para emular o famoso readln :P.
@@ -24,12 +26,13 @@ $search = implode(' ', array_slice($argv, sizeof($options) + 1));
 
 /* Começa a treta :D */
 try {
+    $legendastv = new LegendasTv();
     if (!isset($options['logged'])) {
-        LegendasTV::login('samirfor', '980244');
+        $legendastv->login('samirfor', '980244');
     }
-    $subtitles = LegendasTV::search($search, @$options['l'] ?: (@$options['lang'] ?: 'Qualquer idioma'));
-    //var_dump($subtitles);
-    exit;
+    $subtitles = $legendastv->search($search, @$options['l'] ?: (@$options['lang'] ?: 'Qualquer idioma'));
+    // var_dump($subtitles);
+    // exit;
 } catch (Exception $e) {
     die($e->getMessage());
 }
@@ -66,7 +69,7 @@ if (count($subtitles) > 1 and !(array_key_exists('f', $options) or array_key_exi
     $option = (int) readln();
 
     while (!isset($subtitles[$option])) {
-        echo 'Opção ińválida. Digite novamente: ';
+        echo 'Opção inválida. Digite novamente: ';
         $option = readln();
     }
 

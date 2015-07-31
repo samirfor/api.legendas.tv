@@ -2,6 +2,9 @@
 
 namespace LegendasTv;
 
+require dirname(__FILE__).'/../lib/Http.php';
+require dirname(__FILE__).'/../lib/Legenda.php';
+
 /**
  * Classe para pesquisa e download de legendas do Legendas.tv.
  */
@@ -76,7 +79,8 @@ class LegendasTv
             $this->types[$type]
         );
 
-        list($page) = $this->xmlHttpRequest($link);
+        $http = new Http();
+        list($page) = $http->xmlHttpRequest($link);
         $subtitles = $this->parse($page);
 
         return $subtitles;
@@ -93,7 +97,7 @@ class LegendasTv
      */
     private function parse($page)
     {
-        $regex  = '/';
+        $regex = '/';
         $regex .= 'div class="(.*?)">.*?<a href="(.*?)">(.*?)<.*?p class="data">';
         $regex .= '(\d+?) downloads, nota (\d+?), enviado por .*?>(.*?)<\/a> ';
         $regex .= 'em (.*?) <\/p>.*?<.*?alt="(.*?)".*?<\/div>';
@@ -158,7 +162,7 @@ class LegendasTv
     public function deletaCookie($path = null)
     {
         if ($path === null) {
-            $path = __DIR__ . '/.cookies';
+            $path = __DIR__.'/.cookies';
         }
         unlink($path);
     }
