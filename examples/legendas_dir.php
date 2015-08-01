@@ -39,7 +39,8 @@ try {
 
     $files = scandir(TORRENTDIR);
     foreach ($files as $file) {
-        if (is_dir(TORRENTDIR.'/'.$file || preg_match("/\.br\..{3}$/", $file))) {
+        if (is_dir(TORRENTDIR.'/'.$file) || preg_match("/\.br\..{3}$/", $file)) {
+            // echo "Ignorado $file\n";
             continue;
         }
         if (preg_match('/\.(avi|mp4|mkv)/', $file, $s)) {
