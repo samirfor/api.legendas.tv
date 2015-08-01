@@ -23,13 +23,10 @@ class Legenda
      */
     public function download($filename = null)
     {
-        // list($file, $info, $header) = LegendasTV::request("http://legendas.tv/pages/downloadarquivo/{$this->id}");
-        list($file, $info, $header) = LegendasTV::request("http://legendas.tv/downloadarquivo/{$this->id}");
+        $http = new Http();
+        list($file, $info, $header) = $http->httpRequest("http://legendas.tv/downloadarquivo/{$this->id}");
         if ($filename === null) {
-            /* Antigo funcionamento. Agora não retorna mais o filename no header
-            // preg_match('/filename="(.*?)"/', $header, $filename);
-            */
-            preg_match('/Location: http:\/\/f\.legendas\.tv\/\w\/(.*)/', $header, $filename);
+            preg_match('/Location: http:\/\/f\.legendas\.tv\/\w+\/(.*)/', $header, $filename);
 
             // O formato abaixo é o nome de retorno do arquivo do legendas.tv, que não diz muita coisa
             $filename = trim($filename[1]);
@@ -62,7 +59,7 @@ class Legenda
         }
 
         if (!isset($this->data[$prop])) {
-            throw new InvalidArgumentException();
+            throw new \InvalidArgumentException();
         }
 
         return $this->data[$prop];
