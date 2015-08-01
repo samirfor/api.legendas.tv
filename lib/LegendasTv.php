@@ -166,4 +166,13 @@ class LegendasTv
         }
         unlink($path);
     }
+
+    /**
+     * Verifica se já existe um cookie válido.
+     * TODO
+     */
+    public function verificaSeLogado()
+    {
+
+    }
 }

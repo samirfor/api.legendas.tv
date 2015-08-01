@@ -8,10 +8,12 @@ namespace LegendasTv;
 class Http
 {
     private $url;
+    private $cookiejar;
 
     public function __construct($url = null)
     {
         $this->url = $url;
+        $this->cookiejar = __DIR__.'/.cookies';
     }
 
     /**
@@ -35,19 +37,19 @@ class Http
             $url = $url.implode('/', $query);
         }
 
-        $jar = __DIR__.'/.cookies';
-        if (!file_exists($jar)) {
-            $fh = fopen($jar, 'w');
+        if (!file_exists($this->cookiejar)) {
+            $fh = fopen($this->cookiejar, 'w');
             fwrite($fh, '');
             fclose($fh);
         }
 
         $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.11) Gecko/2009060215 Firefox/3.0.11 (.NET CLR 3.5.30729)');
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_COOKIEJAR, $jar);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, $jar);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, $this->cookiejar);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookiejar);
         if ($xmlHttpRequest) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Requested-With: XMLHttpRequest'));
         }
@@ -80,5 +82,13 @@ class Http
     public function httpRequest($url, $params = array(), $method = 'GET')
     {
         return $this->request($url, false, $params, $method);
+    }
+
+    /**
+     * TODO
+     */
+    public function cookieStillAlive()
+    {
+
     }
 }
