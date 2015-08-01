@@ -19,7 +19,8 @@ function download($subtitle, $file)
     echo "Arquivo {$filename} baixado!\n";
     if (preg_match('/\.(rar|zip)$/', $filename, $compExt)) {
         $outputFile = $file.$compExt[0];
-        exec("mv $filename ".TORRENTDIR.'/'.$outputFile);
+        rename($filename, TORRENTDIR.'/'.$outputFile);
+        // exec("mv $filename ".TORRENTDIR.'/'.$outputFile);
         return $outputFile;
     } else {
         die("ERRO Formato inesperado. Debug: $outputFile");
@@ -46,7 +47,7 @@ try {
         if (preg_match('/\.(avi|mp4|mkv)/', $file, $s)) {
             $file = basename($file, $s[0]);
             // substitui pontos e traços por espaços
-            $termoBusca = preg_replace('/[\.|-]/', ' ', $file);
+            $termoBusca = preg_replace('/[\.|-|_]/', ' ', $file);
             echo "Procurando legenda para $termoBusca ...\n";
             //tenta a pesquisa com o nome inteiro
             $subtitles = $legendastv->search($termoBusca, 'Português-BR');
@@ -58,15 +59,21 @@ try {
                 $zipRarFile = download($subtitles[0], $file);
                 descompacta(getcwd().'/'.$zipRarFile);
             } else {
-                //nao achou com o nome inteiro, tenta só com o episodio, e baixa o primeiro encontrado
-                $termoBusca = preg_replace('/(EXTENDED|PDTV|WEB|HDTV|480p|720p|1080p).*/', '', $termoBusca);
+                // nao achou com o nome inteiro, tenta só com o episodio,
+                // e baixa o primeiro encontrado
+                preg_match('/^.+S\d+E\d+/i', $termoBusca, $resultadoBusca);
+                if (isset($resultadoBusca[0])) {
+                    $termoBusca = $resultadoBusca[0];
+                } else {
+                    $termoBusca = preg_replace('/(EXTENDED|PDTV|WEB|HDTV|480p|720p|1080p).*/', '', $termoBusca);
+                }
                 echo "Procurando legenda para $termoBusca ...\n";
                 $subtitles = $legendastv->search($termoBusca, 'Português-BR');
                 if (!empty($subtitles) && $subtitles[0]) {
                     $zipRarFile = download($subtitles[0], $file);
                     descompacta(getcwd().'/'.$zipRarFile);
                 } else {
-                    echo "Legenda de $file não encontrada :(\n";
+                    echo "Legenda não encontrada :(\n\n";
                 }
             }
         }

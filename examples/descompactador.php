@@ -29,7 +29,7 @@ try {
     $fileAbsPath = realpath($options['f']);
     $currentDir = dirname($fileAbsPath);
     $fileNoExt = pathinfo($fileAbsPath)['filename'];
-    $tmpDir = '/tmp/'.uniqid();
+    $tmpDir = '/tmp/.'.uniqid();
     // echo $fileAbsPath."\n";
     // echo $currentDir."\n";
     // echo $fileNoExt."\n";
