@@ -2,6 +2,7 @@
 
 namespace LegendasTv;
 
+// TODO: criar uma opção para forçar a escolha da legenda mais atual
 if ($argv[1]) {
     if (is_dir($argv[1])) {
         define('TORRENTDIR', $argv[1]);
@@ -30,7 +31,25 @@ function download($subtitle, $file)
 function descompacta($fileRealPath)
 {
     //echo "UNZIP php ".dirname(__FILE__)."/descompactador.php -f \"$fileRealPath\"";
-    passthru("php ".dirname(__FILE__)."/descompactador.php -f \"$fileRealPath\"");
+    passthru('php '.dirname(__FILE__)."/descompactador.php -f \"$fileRealPath\"");
+}
+
+function pesquisarLegenda($termoBusca, $legendastv)
+{
+    $subtitles = $legendastv->search($termoBusca, 'Português-BR');
+    // destaque tem preferência
+    usort($subtitles, function ($a, $b) {
+        if ($a->destaque and !$b->destaque) {
+            return -1;
+        }
+        if ($b->destaque and !$a->destaque) {
+            return 1;
+        }
+
+        return $a->downloads > $b->downloads ? -1 : 1;
+    });
+
+    return $subtitles;
 }
 
 /* Começa a treta :D */
@@ -48,33 +67,19 @@ try {
             $file = basename($file, $s[0]);
             // substitui pontos e traços por espaços
             $termoBusca = preg_replace('/[\.|-|_]/', ' ', $file);
-            echo "Procurando legenda para $termoBusca ...\n";
-            //tenta a pesquisa com o nome inteiro
-            $subtitles = $legendastv->search($termoBusca, 'Português-BR');
-            if (!is_array($subtitles)) {
-                throw new \Exception('Erro na busca.', 1);
-                die();
+            preg_match('/^.+S\d+E\d+/i', $termoBusca, $resultadoBusca);
+            if (isset($resultadoBusca[0])) {
+                $termoBusca = $resultadoBusca[0];
+            } else {
+                $termoBusca = preg_replace('/(EXTENDED|PDTV|WEB|HDTV|480p|720p|1080p).*/', '', $termoBusca);
             }
+            echo "Procurando legenda para $termoBusca ...\n";
+            $subtitles = pesquisarLegenda($termoBusca, $legendastv);
             if (!empty($subtitles) && $subtitles[0]) {
                 $zipRarFile = download($subtitles[0], $file);
                 descompacta(getcwd().'/'.$zipRarFile);
             } else {
-                // nao achou com o nome inteiro, tenta só com o episodio,
-                // e baixa o primeiro encontrado
-                preg_match('/^.+S\d+E\d+/i', $termoBusca, $resultadoBusca);
-                if (isset($resultadoBusca[0])) {
-                    $termoBusca = $resultadoBusca[0];
-                } else {
-                    $termoBusca = preg_replace('/(EXTENDED|PDTV|WEB|HDTV|480p|720p|1080p).*/', '', $termoBusca);
-                }
-                echo "Procurando legenda para $termoBusca ...\n";
-                $subtitles = $legendastv->search($termoBusca, 'Português-BR');
-                if (!empty($subtitles) && $subtitles[0]) {
-                    $zipRarFile = download($subtitles[0], $file);
-                    descompacta(getcwd().'/'.$zipRarFile);
-                } else {
-                    echo "Legenda não encontrada :(\n\n";
-                }
+                echo "Legenda não encontrada :(\n\n";
             }
         }
     }
