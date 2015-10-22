@@ -34,7 +34,8 @@ try {
     // var_dump($subtitles);
     // exit;
 } catch (Exception $e) {
-    die($e->getMessage());
+    echo $e->getMessage() . "\n";
+    exit(1);
 }
 
 if (array_key_exists('d', $options)) { # caso flag "d" esteja ativada retorna apenas os destaques
@@ -77,7 +78,8 @@ if (count($subtitles) > 1 and !(array_key_exists('f', $options) or array_key_exi
 } elseif ($subtitles) {
     $subtitle = $subtitles[0]; // A única :)
 } else {
-    die('Nenhuma legenda encontrada');
+    echo "Nenhuma legenda encontrada :(\n";
+    exit(1);
 }
 
 echo "Baixando {$subtitle->arquivo}...\n";
