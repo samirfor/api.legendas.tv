@@ -52,6 +52,7 @@ try {
     $srtExato = $tmpDir.'/'.$fileNoExt.'.srt';
     if (file_exists($srtExato)) {
         // achou um srt com nome exato do release
+        $achou = true;
         rename($srtExato, $currentDir.'/'.basename($srtExato));
     } else {
         echo "Tentando uma parecida...\n";
@@ -141,15 +142,16 @@ try {
             }
         }
         if (!$achou) {
-            echo "I7: primeiro srt.\n";
+            echo "Nenhuma legenda encontrada.\n";
         }
-
-        echo basename($outputSrt)." encontrada e renomeada.\n";
-        rename($outputSrt, $currentDir.'/'.$fileNoExt.'.srt');
+        if ($achou) {
+            echo basename($outputSrt)." encontrada e renomeada.\n";
+            rename($outputSrt, $currentDir.'/'.$fileNoExt.'.srt');
+        }
     }
-    echo "Legenda $fileNoExt.srt extraída.\n\n";
-    unlink($options['f']);
-    delTree($tmpDir);
+    if ($achou) echo "Legenda $fileNoExt.srt extraída.\n\n";
+    unlink($options['f']); // apaga rar/zip
+    delTree($tmpDir); // apaga tmp dir
 } catch (\Exception $e) {
     die($e->getMessage());
 }
